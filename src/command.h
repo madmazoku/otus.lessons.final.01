@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdio>
+#include <fstream>
+
 #include <boost/asio.hpp>
 
 #include "metrics.h"
@@ -195,8 +198,34 @@ public:
         std::string response;
         _s._m.update("session.successes." + name(), 1);
 
+        boost::system::error_code ec;
         for(size_t n = 1; n < tokens.size(); ++n)
-            _s._q->_queue.push_back(Record(_s._q->_queue.size(), tokens[n]));
+        {
+            size_t start_pos = 0;
+            if(!_s._q->_queue.empty())
+                start_pos = _s._q->_queue.front()._pos;
+            Record r(start_pos + _s._q->_queue.size(), tokens[n]);
+
+            std::string rec_file_name = _s._q->_name + "." + std::to_string(r._pos) + "." + std::to_string(r._pos) + ".rec";
+            std::string rec_file_name_tmp = rec_file_name + ".tmp";
+            std::ofstream out(rec_file_name_tmp);
+            out << r._data << "\n";
+            out.close();
+
+            if(std::rename(rec_file_name_tmp.c_str(), rec_file_name.c_str()) != 0) {
+                std::remove(rec_file_name_tmp.c_str());
+                response = "ERR can't store data part " + std::to_string(n);
+                break;
+            }
+
+            _s._q->_queue.push_back(std::move(r));
+            _s._strand.post(yield[ec]);
+            if(ec) {
+                response = "ERR session error";
+                std::cerr << "session error: " << ec << std::endl;
+                break;
+            }
+        }
 
         return std::move(response);
     }
