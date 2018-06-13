@@ -21,9 +21,8 @@ int main(int argc, char** argv)
         }
 
         Metrics m;
-        QueueMap qm;
-
-        restore_queue(qm);
+        Queues qs;
+        qs.load();
 
         boost::asio::io_service io;
 
@@ -48,7 +47,7 @@ int main(int argc, char** argv)
                     std::cerr << "accept error: " << ec;
                     break;
                 }
-                std::make_shared<Session>(std::move(socket), qm, m)->go();
+                std::make_shared<Session>(std::move(socket), qs, m)->go();
             }
         });
 

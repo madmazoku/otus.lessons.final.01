@@ -20,7 +20,7 @@ class Session : public std::enable_shared_from_this<Session>
 {
 private:
     Metrics& _m;
-    QueueMap& _qm;
+    Queues& _qs;
 
     boost::asio::ip::tcp::socket _socket;
     boost::asio::io_service::strand _strand;
@@ -116,14 +116,14 @@ private:
     }
 
 public:
-    explicit Session(boost::asio::ip::tcp::socket socket, QueueMap& qm, Metrics& m)
+    explicit Session(boost::asio::ip::tcp::socket socket, Queues& qs, Metrics& m)
         : _m(m),
           _socket(std::move(socket)),
           _strand(_socket.get_io_service()),
-          _qm(qm),
+          _qs(qs),
           _echo_cmd(true),
           _local_print_cmd(true),
-          _s(m, qm, _socket, _strand)
+          _s(m, qs, _socket, _strand)
     {
         _m.update("session.count", 1);
 
