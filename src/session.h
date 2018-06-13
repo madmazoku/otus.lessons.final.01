@@ -127,12 +127,12 @@ public:
     {
         _m.update("session.count", 1);
 
-        add_command(std::make_unique<CUse>(_s));
-        add_command(std::make_unique<CList>(_s));
-        add_command(std::make_unique<CQueue>(_s));
-        add_command(std::make_unique<CPush>(_s));
-        add_command(std::make_unique<CPop>(_s));
-        add_command(std::make_unique<CDump>(_s));
+        // add_command(std::make_unique<CUse>(_s));
+        // add_command(std::make_unique<CList>(_s));
+        // add_command(std::make_unique<CQueue>(_s));
+        // add_command(std::make_unique<CPush>(_s));
+        // add_command(std::make_unique<CPop>(_s));
+        // add_command(std::make_unique<CDump>(_s));
         add_command(std::make_unique<CHelp>(_s));
 
         boost::system::error_code ec;
